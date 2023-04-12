@@ -1,4 +1,4 @@
-type TSongMetadata = {
+export type TSongMetadata = {
   name: string;
   latinName: string;
   artist: string;
@@ -14,5 +14,3 @@ type TSongMetadata = {
   scoreModeIncluded: boolean;
   instrumentalIncluded: boolean;
 };
-
-export { TSongMetadata };

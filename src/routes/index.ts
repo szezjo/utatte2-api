@@ -1,21 +1,31 @@
-import { Request, Response, Router } from 'express';
+import express, { Request, Response, Router, query } from 'express';
 import bodyParser from 'body-parser';
 import sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
 import {
+  addQueueEntry,
+  addRoom,
+  addUser,
   getDirNameByID,
   getSongByID,
+  getUsersProfilePicture,
   initDatabase,
   insertSong,
+  listQueueEntriesByRoom,
+  listRooms,
   listSongs,
+  listUsers,
   removeSongByID,
 } from '../utils/databaseOperations.js';
 import { TSongMetadata } from 'models/songs.js';
 import { generateDirname } from '../utils/generateDirname.js';
 import fs from 'fs-extra';
+import multerHelper from '../utils/multerHelper.js';
 
 const router = Router();
 const jsonParser = bodyParser.json();
+
+router.use(express.json());
 
 let db: Database<sqlite3.Database, sqlite3.Statement> | null = null;
 
@@ -142,5 +152,100 @@ router.get('/getCoverImage/:id', async (req: Request, res: Response) => {
     res.json({ ok: false });
   }
 });
+
+router.post('/addRoom', jsonParser, async (req: Request, res: Response) => {
+  try {
+    if (!db) throw new Error('Database file not defined');
+    const { name } = req.body;
+    const queryResult = await addRoom(db, name);
+    const newRoomID = queryResult.lastID;
+    res.json({ok: true, id: newRoomID})
+  }
+  catch (error) {
+    console.error(error);
+    res.json({ ok: false });
+  }
+});
+
+router.get('/listRooms', async (req: Request, res: Response) => {
+  try {
+    if (!db) throw new Error('Database file not defined');
+    const queryResult = await listRooms(db);
+    res.json(queryResult);
+  } catch (error) {
+    console.error(error);
+    res.json({ ok: false });
+  }
+});
+
+router.post('/addUser', multerHelper, async (req: Request, res: Response) => {
+  try {
+    if (!db) throw new Error("Database file not defined");
+    if (!req.file) throw new Error("File not uploaded");
+    const { name } = req.body;
+    const { filename } = req.file;
+    const queryResult = await addUser(db, name, filename);
+    const newUserID = queryResult.lastID;
+    res.json({ok: true, id: newUserID});
+  } catch (error) {
+    console.error(error);
+    res.json({ ok: false });
+  }
+})
+
+router.get('/listUsers', async (req: Request, res: Response) => {
+  try {
+    if (!db) throw new Error('Database file not defined');
+    const queryResult = await listUsers(db);
+    res.json(queryResult);
+  } catch (error) {
+    console.error(error);
+    res.json({ ok: false });
+  }
+});
+
+router.get('/getUsersProfilePicture/:id', async (req: Request, res: Response) => {
+  try {
+    if (!db) throw new Error('Database file not defined');
+    const idNumeric = parseInt(req.params.id);
+    const filename = (await getUsersProfilePicture(db, idNumeric)).profilePicture;
+    const filePath = `./uploads/images/${filename}`;
+    if (!fs.existsSync(filePath)) throw new Error('File not found');
+    res.download(filePath, 'profilePicture.jpg');
+  } catch (error) {
+    console.error(error);
+    res.json({ ok: false });
+  }
+});
+
+router.post('/addQueueEntry', jsonParser, async (req: Request, res: Response) => {
+  try {
+    if (!db) throw new Error('Database file not defined');
+    const songId = parseInt(req.body.songId);
+    const roomId = parseInt(req.body.roomId);
+    const userId = parseInt(req.body.userId);
+
+    const queryResult = await addQueueEntry(db, songId, userId, roomId);
+    const newEntryID = queryResult.lastID;
+    res.json({ok: true, id: newEntryID})
+  }
+  catch (error) {
+    console.error(error);
+    res.json({ ok: false });
+  }
+});
+
+router.get('/listQueueEntries/:id', async (req: Request, res: Response) => {
+  try {
+    if (!db) throw new Error('Database file not defined');
+    const idNumeric = parseInt(req.params.id);
+    const queryResult = await listQueueEntriesByRoom(db, idNumeric);
+    res.json(queryResult);
+  } catch (error) {
+    console.error(error);
+    res.json({ ok: false });
+  }
+});
+
 
 export default router;

@@ -1,11 +1,10 @@
-import sqlite3 from 'sqlite3';
 import sqlite from 'sqlite';
 import { TSongMetadata } from '../models/songs';
 
-const initDatabase = async (db: sqlite.Database) => {
-  return db.run(
+export const initDatabase = async (db: sqlite.Database) => {
+  db.run(
     'CREATE TABLE IF NOT EXISTS Songs (\
-          id                   INTEGER PRIMARY KEY,\
+          id                   INTEGER PRIMARY KEY AUTOINCREMENT,\
           name                 TEXT    NOT NULL,\
           latinName            TEXT    NOT NULL,\
           artist               TEXT    NOT NULL,\
@@ -24,9 +23,27 @@ const initDatabase = async (db: sqlite.Database) => {
       );\
       ',
   );
+  db.run(
+    'CREATE TABLE IF NOT EXISTS Rooms (\
+      id   INTEGER PRIMARY KEY AUTOINCREMENT,\
+      name TEXT    NOT NULL);'
+  );
+  db.run('CREATE TABLE IF NOT EXISTS Users (\
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,\
+    name           TEXT    NOT NULL,\
+    profilePicture TEXT);\
+  ')
+  await db.run('DROP TABLE IF EXISTS QueueEntries');
+  db.run('CREATE TABLE QueueEntries (\
+    id     INTEGER PRIMARY KEY AUTOINCREMENT,\
+    songId INTEGER REFERENCES Songs (id),\
+    userId INTEGER REFERENCES Users (id),\
+    roomId INTEGER REFERENCES Rooms (id) \
+    );\
+  ')
 };
 
-const insertSong = async (db: sqlite.Database, song: TSongMetadata, dirName: string) => {
+export const insertSong = async (db: sqlite.Database, song: TSongMetadata, dirName: string) => {
   return db.run(
     'INSERT INTO Songs (\
         name, latinName, artist, latinArtist, album, latinAlbum, genre, lang, \
@@ -55,21 +72,47 @@ const insertSong = async (db: sqlite.Database, song: TSongMetadata, dirName: str
   );
 };
 
-const listSongs = async (db: sqlite.Database) => {
+export const listSongs = async (db: sqlite.Database) => {
   return db.all('SELECT * FROM Songs');
 };
 
-const getSongByID = async (db: sqlite.Database, id: number) => {
+export const getSongByID = async (db: sqlite.Database, id: number) => {
   return db.get('SELECT * FROM Songs WHERE id=$id', [id]);
 };
 
-const removeSongByID = async (db: sqlite.Database, id: number) => {
+export const removeSongByID = async (db: sqlite.Database, id: number) => {
   return db.run('DELETE FROM Songs WHERE id=$id', [id]);
 };
 
-const getDirNameByID = async (db: sqlite.Database, id: number) => {
+export const getDirNameByID = async (db: sqlite.Database, id: number) => {
   const data = await db.get('SELECT * FROM Songs WHERE id=$id', [id]);
   return data.directoryName;
 };
 
-export { initDatabase, insertSong, listSongs, getSongByID, removeSongByID, getDirNameByID };
+export const addRoom = async (db: sqlite.Database, name: string) => {
+  return db.run('INSERT INTO Rooms(name) VALUES ($name)', {$name: name});
+}
+
+export const listRooms = async (db: sqlite.Database) => {
+  return db.all('SELECT * FROM Rooms');
+}
+
+export const addUser = async (db: sqlite.Database, name: string, filename: string) => {
+  return db.run('INSERT INTO Users(name, profilePicture) VALUES ($name, $profilePicture)', {$name: name, $profilePicture: filename});
+}
+
+export const listUsers = async (db: sqlite.Database) => {
+  return db.all('SELECT * FROM Users');
+}
+
+export const getUsersProfilePicture = async(db: sqlite.Database, id: number) => {
+  return db.get('SELECT profilePicture FROM Users WHERE id=$id', {$id: id});
+}
+
+export const addQueueEntry = async(db: sqlite.Database, songId: number, userId: number, roomId: number) => {
+  return db.run('INSERT INTO QueueEntries(songId,userId,roomId) VALUES ($songId, $userId, $roomId)', {$songId: songId, $userId: userId, $roomId: roomId});
+}
+
+export const listQueueEntriesByRoom = async(db: sqlite.Database, id: number) => {
+  return db.all('SELECT * FROM QueueEntries WHERE roomId=$id', {$id: id});
+}

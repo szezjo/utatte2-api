@@ -159,9 +159,8 @@ router.post('/addRoom', jsonParser, async (req: Request, res: Response) => {
     const { name } = req.body;
     const queryResult = await addRoom(db, name);
     const newRoomID = queryResult.lastID;
-    res.json({ok: true, id: newRoomID})
-  }
-  catch (error) {
+    res.json({ ok: true, id: newRoomID });
+  } catch (error) {
     console.error(error);
     res.json({ ok: false });
   }
@@ -180,18 +179,18 @@ router.get('/listRooms', async (req: Request, res: Response) => {
 
 router.post('/addUser', multerHelper, async (req: Request, res: Response) => {
   try {
-    if (!db) throw new Error("Database file not defined");
-    if (!req.file) throw new Error("File not uploaded");
+    if (!db) throw new Error('Database file not defined');
+    if (!req.file) throw new Error('File not uploaded');
     const { name } = req.body;
     const { filename } = req.file;
     const queryResult = await addUser(db, name, filename);
     const newUserID = queryResult.lastID;
-    res.json({ok: true, id: newUserID});
+    res.json({ ok: true, id: newUserID });
   } catch (error) {
     console.error(error);
     res.json({ ok: false });
   }
-})
+});
 
 router.get('/listUsers', async (req: Request, res: Response) => {
   try {
@@ -227,9 +226,8 @@ router.post('/addQueueEntry', jsonParser, async (req: Request, res: Response) =>
 
     const queryResult = await addQueueEntry(db, songId, userId, roomId);
     const newEntryID = queryResult.lastID;
-    res.json({ok: true, id: newEntryID})
-  }
-  catch (error) {
+    res.json({ ok: true, id: newEntryID });
+  } catch (error) {
     console.error(error);
     res.json({ ok: false });
   }
@@ -246,6 +244,5 @@ router.get('/listQueueEntries/:id', async (req: Request, res: Response) => {
     res.json({ ok: false });
   }
 });
-
 
 export default router;

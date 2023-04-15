@@ -26,21 +26,25 @@ export const initDatabase = async (db: sqlite.Database) => {
   db.run(
     'CREATE TABLE IF NOT EXISTS Rooms (\
       id   INTEGER PRIMARY KEY AUTOINCREMENT,\
-      name TEXT    NOT NULL);'
+      name TEXT    NOT NULL);',
   );
-  db.run('CREATE TABLE IF NOT EXISTS Users (\
+  db.run(
+    'CREATE TABLE IF NOT EXISTS Users (\
     id             INTEGER PRIMARY KEY AUTOINCREMENT,\
     name           TEXT    NOT NULL,\
     profilePicture TEXT);\
-  ')
+  ',
+  );
   await db.run('DROP TABLE IF EXISTS QueueEntries');
-  db.run('CREATE TABLE QueueEntries (\
+  db.run(
+    'CREATE TABLE QueueEntries (\
     id     INTEGER PRIMARY KEY AUTOINCREMENT,\
     songId INTEGER REFERENCES Songs (id),\
     userId INTEGER REFERENCES Users (id),\
     roomId INTEGER REFERENCES Rooms (id) \
     );\
-  ')
+  ',
+  );
 };
 
 export const insertSong = async (db: sqlite.Database, song: TSongMetadata, dirName: string) => {
@@ -90,29 +94,36 @@ export const getDirNameByID = async (db: sqlite.Database, id: number) => {
 };
 
 export const addRoom = async (db: sqlite.Database, name: string) => {
-  return db.run('INSERT INTO Rooms(name) VALUES ($name)', {$name: name});
-}
+  return db.run('INSERT INTO Rooms(name) VALUES ($name)', { $name: name });
+};
 
 export const listRooms = async (db: sqlite.Database) => {
   return db.all('SELECT * FROM Rooms');
-}
+};
 
 export const addUser = async (db: sqlite.Database, name: string, filename: string) => {
-  return db.run('INSERT INTO Users(name, profilePicture) VALUES ($name, $profilePicture)', {$name: name, $profilePicture: filename});
-}
+  return db.run('INSERT INTO Users(name, profilePicture) VALUES ($name, $profilePicture)', {
+    $name: name,
+    $profilePicture: filename,
+  });
+};
 
 export const listUsers = async (db: sqlite.Database) => {
   return db.all('SELECT * FROM Users');
-}
+};
 
-export const getUsersProfilePicture = async(db: sqlite.Database, id: number) => {
-  return db.get('SELECT profilePicture FROM Users WHERE id=$id', {$id: id});
-}
+export const getUsersProfilePicture = async (db: sqlite.Database, id: number) => {
+  return db.get('SELECT profilePicture FROM Users WHERE id=$id', { $id: id });
+};
 
-export const addQueueEntry = async(db: sqlite.Database, songId: number, userId: number, roomId: number) => {
-  return db.run('INSERT INTO QueueEntries(songId,userId,roomId) VALUES ($songId, $userId, $roomId)', {$songId: songId, $userId: userId, $roomId: roomId});
-}
+export const addQueueEntry = async (db: sqlite.Database, songId: number, userId: number, roomId: number) => {
+  return db.run('INSERT INTO QueueEntries(songId,userId,roomId) VALUES ($songId, $userId, $roomId)', {
+    $songId: songId,
+    $userId: userId,
+    $roomId: roomId,
+  });
+};
 
-export const listQueueEntriesByRoom = async(db: sqlite.Database, id: number) => {
-  return db.all('SELECT * FROM QueueEntries WHERE roomId=$id', {$id: id});
-}
+export const listQueueEntriesByRoom = async (db: sqlite.Database, id: number) => {
+  return db.all('SELECT * FROM QueueEntries WHERE roomId=$id', { $id: id });
+};

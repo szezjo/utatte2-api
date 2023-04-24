@@ -80,6 +80,22 @@ export const listSongs = async (db: sqlite.Database) => {
   return db.all('SELECT * FROM Songs');
 };
 
+export const listSongsAZ = async (db: sqlite.Database) => {
+  return db.all('SELECT * FROM Songs ORDER BY LOWER(name) ASC');
+};
+
+export const listSongsZA = async (db: sqlite.Database) => {
+  return db.all('SELECT * FROM Songs ORDER BY LOWER(name) DESC');
+};
+
+export const listSongsAZL = async (db: sqlite.Database) => {
+  return db.all('SELECT * FROM Songs ORDER BY LOWER(latinName) ASC');
+};
+
+export const listSongsZAL = async (db: sqlite.Database) => {
+  return db.all('SELECT * FROM Songs ORDER BY LOWER(latinName) DESC');
+};
+
 export const getSongByID = async (db: sqlite.Database, id: number) => {
   return db.get('SELECT * FROM Songs WHERE id=$id', [id]);
 };

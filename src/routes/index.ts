@@ -35,7 +35,7 @@ let db: Database<sqlite3.Database, sqlite3.Statement> | null = null;
 
 (async () => {
   db = await open({
-    filename: 'database.db',
+    filename: 'database.sqlite',
     driver: sqlite3.Database,
   });
 

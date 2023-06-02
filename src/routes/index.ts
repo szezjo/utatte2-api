@@ -15,9 +15,6 @@ import {
   listRooms,
   listSongs,
   listSongsAZ,
-  listSongsAZL,
-  listSongsZA,
-  listSongsZAL,
   listUsers,
   removeSongByID,
 } from '../utils/databaseOperations.js';
@@ -102,40 +99,40 @@ router.get('/listSongsAZ', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/listSongsZA', async (req: Request, res: Response) => {
-  try {
-    if (!db) throw new Error('Database file not defined');
-    const queryResult = await listSongsZA(db);
-    res.json(queryResult);
-  } catch (error) {
-    console.error(error);
-    res.json({ ok: false });
-  }
-});
+// router.get('/listSongsZA', async (req: Request, res: Response) => {
+//   try {
+//     if (!db) throw new Error('Database file not defined');
+//     const queryResult = await listSongsZA(db);
+//     res.json(queryResult);
+//   } catch (error) {
+//     console.error(error);
+//     res.json({ ok: false });
+//   }
+// });
 
 
-router.get('/listSongsAZL', async (req: Request, res: Response) => {
-  try {
-    if (!db) throw new Error('Database file not defined');
-    const queryResult = await listSongsAZL(db);
-    res.json(queryResult);
-  } catch (error) {
-    console.error(error);
-    res.json({ ok: false });
-  }
-});
+// router.get('/listSongsAZL', async (req: Request, res: Response) => {
+//   try {
+//     if (!db) throw new Error('Database file not defined');
+//     const queryResult = await listSongsAZL(db);
+//     res.json(queryResult);
+//   } catch (error) {
+//     console.error(error);
+//     res.json({ ok: false });
+//   }
+// });
 
 
-router.get('/listSongsZAL', async (req: Request, res: Response) => {
-  try {
-    if (!db) throw new Error('Database file not defined');
-    const queryResult = await listSongsZAL(db);
-    res.json(queryResult);
-  } catch (error) {
-    console.error(error);
-    res.json({ ok: false });
-  }
-});
+// router.get('/listSongsZAL', async (req: Request, res: Response) => {
+//   try {
+//     if (!db) throw new Error('Database file not defined');
+//     const queryResult = await listSongsZAL(db);
+//     res.json(queryResult);
+//   } catch (error) {
+//     console.error(error);
+//     res.json({ ok: false });
+//   }
+// });
 
 
 router.get('/getSong/:id', async (req: Request, res: Response) => {
